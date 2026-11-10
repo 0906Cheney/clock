@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#155e75">
+<title>海洋時間站｜教室計時工具</title>
+<style>
+/* 基礎設定：全站使用內建字型與海洋泡泡色彩，無外部依賴 */
+:root{--canvas:#e8f9ff;--paper:#fff;--sky:#4cc9e7;--sky-soft:#e1f8fd;--indigo:#3e78c6;--primary:#155e75;--dark:#0c3f50;--pale:#d8f3fa;--green:#207766;--orange:#f47b54;--yellow:#ffd166;--ink:#203943;--muted:#45616c;--line:#cce3ea;--shadow:0 22px 60px rgba(19,87,108,.15)}
+*{box-sizing:border-box}input,select,textarea{max-width:100%}body{margin:0;min-height:100vh;font-family:"Arial Rounded MT Bold","Microsoft JhengHei",system-ui,sans-serif;color:var(--ink);background:radial-gradient(circle at 8% 9%,rgba(76,201,231,.35),transparent 27%),radial-gradient(circle at 92% 8%,rgba(255,209,102,.3),transparent 28%),linear-gradient(135deg,#d7f2ff,#f5fcff 53%,#e2f9f7);background-attachment:fixed}
+button,input,select{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.45}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #f47b54;outline-offset:3px}.wrap{width:min(1100px,calc(100% - 32px));margin:auto;padding:22px 0 45px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:13px 18px;border:2px solid #fff;border-radius:999px;background:rgba(255,255,255,.86);box-shadow:0 10px 25px #13576c1c}.brand{display:flex;align-items:center;gap:12px;font-weight:900;font-size:clamp(17px,2vw,22px)}.logo{display:grid;place-items:center;background:linear-gradient(135deg,var(--dark),var(--primary));color:white;border-radius:15px;width:43px;height:43px;flex:none;transform:rotate(-5deg);font-size:24px}.top-note{font-size:13px;color:var(--muted);font-weight:700}.intro{text-align:center;margin:24px auto 18px}.intro h1{margin:0;font-size:clamp(27px,4vw,43px);color:var(--dark)}.intro p{margin:9px 0 0;color:var(--muted)}
+/* 三個功能切換鈕：投影與手機都維持明確的操作區 */
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0}.tab{min-height:62px;border:2px solid #fff;border-radius:21px;background:#ffffffbd;color:var(--primary);font-weight:900;font-size:clamp(15px,2.5vw,20px);box-shadow:0 6px 20px #13576c18}.tab[aria-selected="true"]{background:linear-gradient(135deg,var(--dark),var(--primary));color:white;box-shadow:0 12px 24px #155e7540}.panel{display:none}.panel.active{display:block}.card{border:2px solid rgba(255,255,255,.95);border-radius:36px;background:linear-gradient(140deg,#fffefde8,#e8f9ffe8);box-shadow:var(--shadow);padding:clamp(18px,4vw,36px);position:relative;overflow:hidden}.card:before{content:"";position:absolute;width:180px;height:180px;right:-80px;top:-94px;background:linear-gradient(135deg,#4cc9e7,#3e78c6);border-radius:50%;opacity:.18;pointer-events:none}.card:after{content:"";position:absolute;width:130px;height:130px;left:-60px;bottom:-70px;background:var(--yellow);border-radius:50%;opacity:.22;pointer-events:none}.inside{position:relative;z-index:1}.mode-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.mode-title{font-size:clamp(20px,2.5vw,28px);font-weight:900}.tag{background:var(--pale);border-radius:999px;padding:7px 14px;color:var(--primary);font-weight:800;font-size:14px}.display-box{text-align:center;padding:clamp(24px,4vh,45px) 5px 16px}.bigtime{font-size:clamp(72px,15vw,184px);font-variant-numeric:tabular-nums;font-weight:950;line-height:1.12;letter-spacing:-.065em;color:var(--dark);white-space:nowrap}.bigtime.clock-digits{font-size:clamp(50px,11vw,130px)}.subline{font-size:clamp(17px,2.6vw,24px);font-weight:800;color:var(--muted);min-height:35px;margin-top:9px}.controls{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:20px}.btn{border:0;border-radius:999px;padding:15px 25px;min-height:55px;background:linear-gradient(135deg,var(--primary),var(--dark));box-shadow:0 12px 20px #155e7529;color:white;font-weight:900;font-size:18px;transition:transform .15s}.btn:hover:not(:disabled){transform:translateY(-2px)}.btn.secondary{background:white;color:var(--primary);border:2px solid var(--line);box-shadow:0 8px 18px #155e7517}.btn.orange{background:linear-gradient(135deg,var(--orange),#ce573a)}.btn.small{min-height:44px;font-size:15px;padding:10px 16px}.settings{margin-top:22px;padding:20px;border:1px solid var(--line);border-radius:25px;background:#ffffffbf}.settings-title{font-weight:900;color:var(--primary);margin-bottom:12px}.presets{display:flex;gap:10px;flex-wrap:wrap}.preset{border:2px solid #cce3ea;border-radius:15px;padding:11px 16px;background:white;font-weight:800;color:var(--primary)}.preset:hover{background:var(--sky-soft)}.fields{display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin-top:16px}.field{display:flex;flex-direction:column;gap:6px;font-weight:800;color:var(--muted)}.field input,.field select{min-height:46px;padding:9px 12px;border:2px solid var(--line);border-radius:13px;background:white;color:var(--ink)}.field input{width:110px}.help{color:var(--muted);font-size:14px;line-height:1.65;margin:12px 0 0}.progress{height:15px;background:#d4eaf0;border-radius:999px;margin:24px auto 0;max-width:850px;overflow:hidden}.progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--primary),var(--sky),var(--yellow));transition:width .12s linear;border-radius:inherit}.list{margin:15px 0 0;padding:0;list-style:none;max-height:290px;overflow:auto}.list li{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--line);background:#f5fcff;padding:13px 16px;margin:8px 0;border-radius:15px;font-variant-numeric:tabular-nums}.list strong{color:var(--primary)}.zones{display:flex;align-items:end;flex-wrap:wrap;gap:12px;justify-content:center}.zones .field{flex:1 1 260px}.zones select{width:100%}.zone-adjust{display:flex;gap:8px}.zone-info{text-align:center;color:var(--muted);font-weight:800;margin-top:15px;min-height:26px}.footer{text-align:center;color:var(--muted);font-size:13px;margin-top:20px}.alert{color:#b84a5a!important}.status-done{color:#b84a5a}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+/* 手機 RWD：控制鈕可換行，數字使用響應字級，不產生橫向捲動 */
+@media(max-width:620px){.wrap{width:calc(100% - 18px);padding-top:12px}.topbar{border-radius:22px}.top-note{display:none}.intro{margin:18px auto 12px}.tabs{gap:6px;margin:14px 0}.tab{min-height:56px;border-radius:15px;padding:6px 3px}.card{border-radius:25px}.bigtime{font-size:clamp(60px,15vw,110px)}.bigtime.clock-digits{font-size:clamp(43px,11vw,78px)}.controls{gap:8px}.controls .btn{flex:1 1 130px;padding:12px 10px;font-size:16px}.settings{padding:15px}.field input{width:100px}.presets .preset{flex:1 1 80px}.zones .field{flex-basis:100%}}@media(max-width:360px){.brand{font-size:16px}.bigtime{font-size:14vw}.bigtime.clock-digits{font-size:10vw}.tab{font-size:13px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<header class="topbar"><div class="brand"><div class="logo" aria-hidden="true">⏱</div><span>海洋時間站</span></div><span class="top-note">教室投影 · 單檔離線工具</span></header>
+<section class="intro"><h1>一起掌握每一秒</h1><p>倒數計時、碼錶紀錄、世界時鐘，三種模式一鍵切換</p></section>
+<nav class="tabs" aria-label="計時模式" role="tablist">
+<button id="tab-countdown" class="tab" role="tab" aria-selected="true" aria-controls="countdown-panel" data-mode="countdown">⏳ 倒數計時</button>
+<button id="tab-stopwatch" class="tab" role="tab" aria-selected="false" aria-controls="stopwatch-panel" data-mode="stopwatch">🏁 碼錶</button>
+<button id="tab-clock" class="tab" role="tab" aria-selected="false" aria-controls="clock-panel" data-mode="clock">🌍 世界時鐘</button>
+</nav>
+<section id="countdown-panel" class="panel active" role="tabpanel" aria-labelledby="tab-countdown"><div class="card"><div class="inside">
+<div class="mode-head"><div class="mode-title">倒數計時器</div><span class="tag" id="cd-state">準備開始</span></div>
+<div class="display-box"><div class="bigtime" id="cd-display" role="timer" aria-label="剩餘時間">01:00</div><div class="subline" id="cd-sub">設定時間後，按下開始</div><div class="progress" aria-hidden="true"><div id="cd-progress"></div></div></div>
+<div class="controls"><button class="btn" id="cd-start">▶ 開始</button><button class="btn secondary" id="cd-pause" disabled>⏸ 暫停</button><button class="btn secondary" id="cd-reset">↺ 重設</button><button class="btn secondary" id="sound-toggle" aria-pressed="false">🔊 音效開啟</button></div>
+<div class="settings"><div class="settings-title">快速設定常用時間</div><div class="presets" id="presets"><button class="preset" data-seconds="30">30 秒</button><button class="preset" data-seconds="60">1 分鐘</button><button class="preset" data-seconds="120">2 分鐘</button><button class="preset" data-seconds="180">3 分鐘</button><button class="preset" data-seconds="300">5 分鐘</button><button class="preset" data-seconds="600">10 分鐘</button></div>
+<form id="custom-form" class="fields"><label class="field">分鐘<input id="minutes" type="number" min="0" max="999" step="1" value="1" required inputmode="numeric"></label><label class="field">秒數<input id="seconds" type="number" min="0" max="59" step="1" value="0" required inputmode="numeric"></label><button class="btn small" type="submit">套用時間</button></form><p class="help" id="cd-error" role="alert">時間可設定為 1 秒至 999 分 59 秒。選擇新的時間會停止當前倒數。</p></div>
+</div></div></section>
+<section id="stopwatch-panel" class="panel" role="tabpanel" aria-labelledby="tab-stopwatch"><div class="card"><div class="inside">
+<div class="mode-head"><div class="mode-title">分段紀錄碼錶</div><span class="tag" id="sw-state">尚未開始</span></div>
+<div class="display-box"><div class="bigtime" id="sw-display" role="timer">00:00.00</div><div class="subline">記錄每一段時間，碼錶不會停止</div></div>
+<div class="controls"><button class="btn" id="sw-start">▶ 開始</button><button class="btn secondary" id="sw-lap" disabled>🏁 記錄時間</button><button class="btn secondary" id="sw-reset">↺ 歸零</button></div>
+<div class="settings"><div class="settings-title">分段紀錄 <span id="lap-count">（0 筆）</span></div><p class="help">按「記錄時間」會保存當下的總經過時間與相鄰兩筆紀錄的區間時間，碼錶繼續計數。</p><ol class="list" id="laps" aria-label="碼錶分段紀錄"><li>尚無紀錄</li></ol></div>
+</div></div></section>
+<section id="clock-panel" class="panel" role="tabpanel" aria-labelledby="tab-clock"><div class="card"><div class="inside">
+<div class="mode-head"><div class="mode-title">世界時鐘</div><span class="tag">即時更新</span></div>
+<div class="display-box"><div class="bigtime clock-digits" id="clock-display" role="timer">--:--:--</div><div class="subline" id="clock-date">正在讀取日期</div></div>
+<div class="settings"><div class="settings-title">選擇時區或使用按鈕逐小時調整</div><div class="zones">
+<label class="field">常用城市（自動處理夏令時間）<select id="city-zone"><option value="Asia/Taipei">臺北／臺灣</option><option value="Asia/Tokyo">東京／日本</option><option value="Asia/Seoul">首爾／韓國</option><option value="Asia/Shanghai">上海／中國</option><option value="Asia/Hong_Kong">香港</option><option value="Asia/Singapore">新加坡</option><option value="Asia/Kolkata">加爾各答／印度</option><option value="Asia/Dubai">杜拜</option><option value="Europe/London">倫敦／英國</option><option value="Europe/Paris">巴黎／法國</option><option value="Europe/Berlin">柏林／德國</option><option value="Africa/Johannesburg">約翰尼斯堡</option><option value="America/New_York">紐約／美國</option><option value="America/Chicago">芝加哥／美國</option><option value="America/Denver">丹佛／美國</option><option value="America/Los_Angeles">洛杉磯／美國</option><option value="America/Anchorage">安克拉治／美國</option><option value="Pacific/Honolulu">檀香山／美國</option><option value="Australia/Sydney">雪梨／澳洲</option><option value="Pacific/Auckland">奧克蘭／紐西蘭</option></select></label>
+<label class="field">固定 UTC 時差（含半小時／15 分鐘時區）<select id="utc-zone"></select></label>
+<div class="zone-adjust"><button class="btn small secondary" id="zone-minus" aria-label="時差減一小時">− 1 小時</button><button class="btn small secondary" id="zone-plus" aria-label="時差加一小時">＋1 小時</button></div><button class="btn small secondary" id="zone-local">回到裝置當地時間</button>
+</div><div class="zone-info" id="zone-info">臺北時間</div><p class="help">城市模式依裝置內建時區資料處理夏令時間；手動調整則採固定 UTC 時差，不自動套用夏令時間。時鐘依裝置系統時間顯示。</p></div>
+</div></div></section>
+<footer class="footer">海洋時間站 · 所有功能都在瀏覽器本機執行，不需連線或上傳資料。</footer>
+</main>
+<script>
+'use strict';
+// DOM 工具與模式切換：切換頁面時不會取消其他模式的既有計時。
+const $=id=>document.getElementById(id);
+for(const tab of document.querySelectorAll('.tab')){
+ tab.addEventListener('click',()=>{
+  document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',String(t===tab)));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===tab.dataset.mode+'-panel'));
+ });
+}
+const pad=n=>String(n).padStart(2,'0');
+const formatCD=s=>`${pad(Math.floor(s/60))}:${pad(s%60)}`;
+let audioCtx=null,soundOn=true;
+// 音效須在按鈕點擊等使用者操作後解鎖；不使用遠端 mp3。
+function unlockAudio(){if(!soundOn)return;try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;if(!audioCtx)audioCtx=new AC();if(audioCtx.state==='suspended')audioCtx.resume().catch(()=>{});}catch(e){console.warn('音效不可用',e);}}
+function beep(){if(!soundOn||!audioCtx)return;try{const t=audioCtx.currentTime;[0,.23,.46].forEach((delay,i)=>{const osc=audioCtx.createOscillator(),gain=audioCtx.createGain();osc.type='sine';osc.frequency.value=i===2?880:660;gain.gain.setValueAtTime(.0001,t+delay);gain.gain.exponentialRampToValueAtTime(.16,t+delay+.015);gain.gain.exponentialRampToValueAtTime(.0001,t+delay+.19);osc.connect(gain);gain.connect(audioCtx.destination);osc.start(t+delay);osc.stop(t+delay+.2);});}catch(e){console.warn('播放提示音失敗',e);}}
+$('sound-toggle').addEventListener('click',()=>{soundOn=!soundOn;$('sound-toggle').textContent=soundOn?'🔊 音效開啟':'🔇 靜音';$('sound-toggle').setAttribute('aria-pressed',String(!soundOn));if(soundOn)unlockAudio();});
+// 倒數以 performance.now 計算單調時鐘，避免 setInterval 誤差累積。
+let cdInitial=60,cdRemaining=60000,cdEnd=0,cdStatus='idle';
+function renderCD(){const sec=Math.ceil(Math.max(0,cdRemaining)/1000);$('cd-display').textContent=formatCD(sec);$('cd-progress').style.width=`${cdInitial?Math.min(100,Math.max(0,(1-cdRemaining/(cdInitial*1000))*100)):0}%`;$('cd-state').textContent=({idle:'準備開始',running:'倒數中',paused:'已暫停',done:'時間到'})[cdStatus];$('cd-sub').textContent=cdStatus==='done'?'時間到！請準備下一個活動':cdStatus==='paused'?'倒數已暫停':cdStatus==='running'?'專心完成眼前的挑戰':'設定時間後，按下開始';$('cd-sub').classList.toggle('status-done',cdStatus==='done');$('cd-start').disabled=cdStatus==='running';$('cd-start').textContent=cdStatus==='paused'?'▶ 繼續':'▶ 開始';$('cd-pause').disabled=cdStatus!=='running';}
+function setCD(sec){cdInitial=sec;cdRemaining=sec*1000;cdStatus='idle';renderCD();}
+function cdStart(){if(cdStatus==='running')return;if(cdStatus==='done')cdRemaining=cdInitial*1000;if(cdRemaining<=0)cdRemaining=cdInitial*1000;unlockAudio();cdEnd=performance.now()+cdRemaining;cdStatus='running';renderCD();}
+function cdPause(){if(cdStatus!=='running')return;cdRemaining=Math.max(0,cdEnd-performance.now());cdStatus='paused';renderCD();}
+function cdReset(){setCD(cdInitial);}
+$('cd-start').addEventListener('click',cdStart);$('cd-pause').addEventListener('click',cdPause);$('cd-reset').addEventListener('click',cdReset);
+document.querySelectorAll('.preset').forEach(b=>b.addEventListener('click',()=>{const sec=Number(b.dataset.seconds);$('minutes').value=Math.floor(sec/60);$('seconds').value=sec%60;$('cd-error').textContent='已套用預設時間。';setCD(sec);}));
+$('custom-form').addEventListener('submit',e=>{e.preventDefault();const m=Number($('minutes').value),s=Number($('seconds').value);if(!Number.isInteger(m)||!Number.isInteger(s)||m<0||m>999||s<0||s>59||m*60+s<=0){$('cd-error').textContent='請輸入有效時間：分鐘 0～999、秒數 0～59，且總時間不得為零。';$('cd-error').classList.add('alert');return;}$('cd-error').classList.remove('alert');$('cd-error').textContent='已套用自訂時間。';setCD(m*60+s);});
+// 碼錶採 performance.now + 累積時間，暫停與恢復後仍可正確記錄各段。
+let swStatus='idle',swAccumulated=0,swStartedAt=0,swLaps=[];
+function swElapsed(){return swAccumulated+(swStatus==='running'?performance.now()-swStartedAt:0);}
+function formatSW(ms){const centi=Math.floor(Math.max(0,ms)/10),sec=Math.floor(centi/100);return `${pad(Math.floor(sec/60))}:${pad(sec%60)}.${pad(centi%100)}`;}
+function renderSW(){ $('sw-display').textContent=formatSW(swElapsed());$('sw-state').textContent=({idle:'尚未開始',running:'計時中',paused:'已暫停'})[swStatus];$('sw-start').textContent=swStatus==='running'?'⏸ 暫停':swStatus==='paused'?'▶ 繼續':'▶ 開始';$('sw-lap').disabled=swStatus!=='running'; }
+$('sw-start').addEventListener('click',()=>{if(swStatus==='running'){swAccumulated=swElapsed();swStatus='paused';}else{swStartedAt=performance.now();swStatus='running';}renderSW();});
+$('sw-lap').addEventListener('click',()=>{if(swStatus!=='running')return;const total=swElapsed(),prior=swLaps.length?swLaps[swLaps.length-1]:0;swLaps.push(total);const li=document.createElement('li');const label=document.createElement('strong');label.textContent=`第 ${swLaps.length} 段`;const time=document.createElement('span');time.textContent=`本段 ${formatSW(total-prior)}｜累積 ${formatSW(total)}`;li.append(label,time);if(swLaps.length===1)$('laps').replaceChildren();$('laps').prepend(li);$('lap-count').textContent=`（${swLaps.length} 筆）`;});
+$('sw-reset').addEventListener('click',()=>{swStatus='idle';swAccumulated=0;swStartedAt=0;swLaps=[];$('lap-count').textContent='（0 筆）';$('laps').replaceChildren(document.createElement('li'));$('laps').firstChild.textContent='尚無紀錄';renderSW();});
+// 世界時鐘：IANA 城市模式會依瀏覽器的 ICU 時區資料顯示 DST；固定時差模式用 UTC 計算。
+let zoneMode='city',city='Asia/Taipei',offset=480;
+const utcOffsets=[];for(let min=-720;min<=840;min+=15){utcOffsets.push(min);} // UTC-12 至 UTC+14，含 15 分鐘刻度
+function offsetLabel(min){return `UTC${min<0?'-':'+'}${pad(Math.floor(Math.abs(min)/60))}:${pad(Math.abs(min)%60)}`;}
+for(const min of utcOffsets){const option=document.createElement('option');option.value=String(min);option.textContent=offsetLabel(min);$('utc-zone').append(option);}$('utc-zone').value='480';
+$('city-zone').addEventListener('change',e=>{zoneMode='city';city=e.target.value;updateClock();});
+$('utc-zone').addEventListener('change',e=>{zoneMode='offset';offset=Number(e.target.value);updateClock();});
+function currentCityOffset(){try{const now=new Date();const parts=new Intl.DateTimeFormat('en-US',{timeZone:city,timeZoneName:'shortOffset'}).formatToParts(now);const raw=parts.find(p=>p.type==='timeZoneName')?.value||'';const m=raw.match(/GMT([+-])(\d{1,2})(?::(\d{2}))?/);return m?(m[1]==='-'?-1:1)*(Number(m[2])*60+Number(m[3]||0)):0;}catch{return 0;}}
+function shiftOffset(hours){if(zoneMode==='city')offset=currentCityOffset();offset=Math.min(840,Math.max(-720,offset+hours*60));zoneMode='offset';$('utc-zone').value=String(offset);updateClock();}
+$('zone-minus').addEventListener('click',()=>shiftOffset(-1));$('zone-plus').addEventListener('click',()=>shiftOffset(1));
+$('zone-local').addEventListener('click',()=>{zoneMode='local';updateClock();});
+function updateClock(){const now=new Date();let parts,description;
+ try{if(zoneMode==='city'){parts=new Intl.DateTimeFormat('zh-TW',{timeZone:city,year:'numeric',month:'2-digit',day:'2-digit',weekday:'long',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).formatToParts(now);description=$('city-zone').selectedOptions[0].textContent+'（自動夏令時間）';}else if(zoneMode==='local'){parts=new Intl.DateTimeFormat('zh-TW',{year:'numeric',month:'2-digit',day:'2-digit',weekday:'long',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).formatToParts(now);description='裝置當地時間';}else{const shifted=new Date(now.getTime()+offset*60000);parts=new Intl.DateTimeFormat('zh-TW',{timeZone:'UTC',year:'numeric',month:'2-digit',day:'2-digit',weekday:'long',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).formatToParts(shifted);description=offsetLabel(offset)+'（固定時差）';}
+ const obj=Object.fromEntries(parts.filter(p=>p.type!=='literal').map(p=>[p.type,p.value]));$('clock-display').textContent=`${obj.hour}:${obj.minute}:${obj.second}`;$('clock-date').textContent=`${obj.year} 年 ${obj.month} 月 ${obj.day} 日　${obj.weekday}`;$('zone-info').textContent=description;
+ }catch(e){$('clock-date').textContent='無法讀取選定時區，請選擇其他時區';console.warn(e);}}
+// 單一顯示更新迴圈；結束通知僅觸發一次，避免重複音效。
+function tick(){if(cdStatus==='running'){cdRemaining=Math.max(0,cdEnd-performance.now());if(cdRemaining===0){cdStatus='done';beep();}renderCD();}if(swStatus==='running')renderSW();updateClock();}
+renderCD();renderSW();updateClock();setInterval(tick,50);
+</script>
+</body>
+</html>
